@@ -5,6 +5,7 @@ import pytesseract
 import tkinter as tk
 from tkinter import filedialog, messagebox
 
+
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 
@@ -28,6 +29,7 @@ def extract_text_from_image(image_path):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     text = pytesseract.image_to_string(gray)
     return text
+
 
 def save_to_json(data, original_file):
     filename = os.path.splitext(os.path.basename(original_file))[0] + ".json"
@@ -60,7 +62,7 @@ def process_files(file_paths):
 
 def build_gui():
     window = tk.Tk()
-    window.title("Marksheet Text Extractor")
+    window.title(" Marksheet Text Extractor")
     window.geometry("450x250")
     window.resizable(False, False)
 
@@ -85,10 +87,10 @@ def build_gui():
     def run_extraction():
         process_files(selected_files)
 
-    upload_btn = tk.Button(window, text=" Upload Images", command=upload_files, width=20)
+    upload_btn = tk.Button(window, text="📂 Upload Images", command=upload_files, width=20)
     upload_btn.pack(pady=5)
 
-    run_btn = tk.Button(window, text=" Extract Text & Save JSON", command=run_extraction, width=30, bg="#247927", fg="white")
+    run_btn = tk.Button(window, text="🚀 Extract Text & Save JSON", command=run_extraction, width=30, bg="#4CAF50", fg="white")
     run_btn.pack(pady=15)
 
     window.mainloop()

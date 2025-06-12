@@ -1,70 +1,65 @@
+import os
 import cv2
 import pytesseract
-import re
 import json
-import os
+import re
+
 
 pytesseract.pytesseract.tesseract_cmd = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
 
 
+INPUT_FOLDER = "data"
+OUTPUT_FOLDER = "output"
+
+
+def parse_text_to_json(text):
+    result = {}
+    lines = text.splitlines()
+
+    for line in lines:
+        if ":" in line:
+            key, value = line.split(":", 1)
+            result[key.strip()] = value.strip()
+    return result
+
+
 def extract_text_from_image(image_path):
     img = cv2.imread(image_path)
+
     if img is None:
-        print("Error: Couldn't load the image. Check the path.")
+        print(f" Failed to load image: {image_path}")
         return ""
 
-
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-
     text = pytesseract.image_to_string(gray)
     return text
 
-def parse_text_to_json(text):
-    data = {}
-    marks = {}
 
-    lines = text.split('\n')
-    for line in lines:
-        line = line.strip()
-        if not line:
-            continue
-
-        match = re.match(r"(\w[\w ]*):\s*(\w[\w ]*)", line)
-        if match:
-            key, value = match.groups()
-            key = key.strip()
-            value = value.strip()
-
-            try:
-                value = int(value)
-            except:
-                pass
-
-            if key.lower() in ["name", "roll no", "total"]:
-                data[key] = value
-            else:
-                marks[key] = value
-
-    data["Marks"] = marks
-    return data
-
-def save_to_json(data, output_path):
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(data, f, indent=4)
-    print(f"JSON saved to: {output_path}")
+def save_to_json(data, filename):
+    os.makedirs(OUTPUT_FOLDER, exist_ok=True)
+    json_path = os.path.join(OUTPUT_FOLDER, filename)
+    with open(json_path, "w", encoding='utf-8') as f:
+        json.dump(data, f, indent=4, ensure_ascii=False)
 
 
+def process_all_marksheets():
+    print("🔍 Looking for marksheet images in 'data/'...")
+    files = [f for f in os.listdir(INPUT_FOLDER) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+
+    if not files:
+        print("No image files found in 'data/' folder.")
+        return
+
+    for file in files:
+        img_path = os.path.join(INPUT_FOLDER, file)
+        print(f"Processing: {file}")
+        extracted_text = extract_text_from_image(img_path)
+        json_data = parse_text_to_json(extracted_text)
+
+        json_filename = os.path.splitext(file)[0] + ".json"
+        save_to_json(json_data, json_filename)
+        print(f" Saved JSON as: {json_filename}\n")
+
+# ✅ Run
 if __name__ == "__main__":
-  
-    image_path = r"C:\Users\HP\Pictures\Screenshots\Screenshot 2025-06-11 004231.png"
-
-    extracted_text = extract_text_from_image(image_path)
-
-    print("Extracted Text:\n")
-    print(extracted_text)
-
-    json_data = parse_text_to_json(extracted_text)
-
-    save_to_json(json_data, "output/result.json")
+    process_all_marksheets()
