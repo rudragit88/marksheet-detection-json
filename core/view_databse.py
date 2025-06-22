@@ -5,9 +5,9 @@ import os
 
 DB_PATH = "output/marksheets.db"
 
-st.set_page_config(page_title="📋 View Database", layout="centered")
+st.set_page_config(page_title=" View Database", layout="centered")
 
-st.title("📋 Stored Marksheet Records")
+st.title(" Stored Marksheet Records")
 
 if os.path.exists(DB_PATH):
     conn = sqlite3.connect(DB_PATH)
@@ -15,6 +15,6 @@ if os.path.exists(DB_PATH):
     conn.close()
 
     st.dataframe(df, use_container_width=True)
-    st.success(f"✅ Total Records: {len(df)}")
+    st.success(f" Total Records: {len(df)}")
 else:
-    st.warning("⚠️ No database found. Please process marksheets first.")
+    st.warning(" No database found. Please process marksheets first.")
